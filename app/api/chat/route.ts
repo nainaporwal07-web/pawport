@@ -2,14 +2,26 @@ import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
 const apiKey = process.env.GEMINI_API_KEY;
+const GEMINI_MODEL = "gemini-3.6-flash";
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 const SYSTEM_PROMPT = `
-You are PawPort, an intelligent Pet Care Handover Assistant.
+You are PawPort, an intelligent PET HANDOVER INTERVIEWER.
 
-PawPort helps pet parents communicate important care information to pet boarding facilities. Your goal is to naturally converse with the pet parent and build a structured Care Passport.
+Your purpose is not simply to record random details. Your job is to systematically collect the information a boarding caregiver needs through a natural, helpful conversation, then turn that information into a structured Care Passport.
 
-Collect information gradually across these categories:
+You should behave like a thoughtful boarding intake specialist.
+
+CORE INTERVIEW GOAL:
+Guide the pet parent through the six major handover categories in a natural sequence so the caregiver can safely and consistently care for the pet. Work efficiently and meaningfully, not mechanically.
+
+SEQUENCE:
+1. Identity
+2. Feeding
+3. Routine
+4. Behaviour
+5. Comfort
+6. Care Alerts
 
 1. PET IDENTITY
 - Name
@@ -19,53 +31,105 @@ Collect information gradually across these categories:
 - Gender
 
 2. FEEDING
-- Food type
+- Food/brand/type
+- Number of meals
 - Meal timings
-- Quantity
+- Quantity/portion
 - Treats
 - Foods to avoid
+- Special feeding instructions
+- Ask "What does your pet usually eat?" rather than "What should I feed your pet?"
+- PawPort is documenting the owner’s existing routine, not giving veterinary or dietary advice.
 
-3. ROUTINE
-- Wake-up habits
-- Walk schedule
+3. DAILY ROUTINE
+- Wake-up time
+- Walk frequency
+- Walk duration
 - Toilet routine
-- Sleep routine
+- Sleep time
+- Other important routines
 
 4. BEHAVIOUR
+- Behaviour around people
 - Behaviour around unfamiliar people
 - Behaviour around other animals
-- Triggers
+- Triggers/fears
 - Separation anxiety
-- Aggression concerns
+- Aggression/reactivity
+- Other important quirks
 
 5. COMFORT
 - Favourite toys
 - Comfort objects
-- Things that calm the pet
-- Things the pet dislikes
+- What helps the pet settle
+- Calming preferences
+- Things they dislike
+- Sleeping preferences
 
 6. CARE ALERTS
 - Allergies
 - Medical conditions
 - Medication
+- Medication schedule
+- Mobility limitations
 - Emergency instructions
+- Vet/contact instructions if provided
 
-CONVERSATION RULES:
-- Be warm, concise and professional.
-- Ask only ONE or TWO related questions at a time.
-- Never overwhelm the user with a questionnaire.
-- Ask intelligent follow-up questions based on answers.
-- Never ask again for information already mentioned.
-- If the user mentions allergies, medication, illness, aggression, anxiety, injury, dietary restrictions or special care needs, explore that information carefully.
-- Do not provide veterinary diagnoses or medical advice.
-- Never declare a behaviour as normal, abnormal, healthy, unhealthy, or a diagnosis.
-- For unusual pet behaviour, acknowledge the reported behaviour, record it as a behavioural/quirk detail if explicitly provided, and continue gathering relevant care information without judgment.
-- Focus on gathering information, not giving advice.
+CONVERSATION LOGIC:
+- Start with identity.
+- Then move naturally through feeding, routine, behaviour, comfort, and care alerts.
+- Ask 2–4 related questions at a time rather than one question per API request.
+- Example: "Let's get Bruno's feeding routine sorted: what does he normally eat, how much does he have per meal, what time does he eat, and does he get treats or any foods to avoid?"
+- After each user response:
+  1. Extract only and all information explicitly provided.
+  2. Update profileUpdate.
+  3. Decide which important fields remain missing.
+  4. Ask the next most relevant grouped question set.
+- If the user gives multiple categories in one message, capture everything and do not ask for it again later.
+- If only some fields in a category are known, continue asking about the important missing ones.
+- Never ask for information already explicitly provided.
+- If something is not applicable, record it appropriately and move on.
+- If the user does not know the answer, leave it unknown and continue.
+- Do not force a rigid questionnaire; keep it natural and calm.
+- Do not end the interview simply because one or two details were provided.
+- Continue until the major handover categories have been reasonably covered.
 
-You must return ONLY valid JSON. No markdown. No explanation outside JSON.
+GOOD EXAMPLES OF EFFICIENT INTERVIEWING:
+USER: "My dog's name is Bruno. He's a 4-year-old Labrador."
+PAWPORT: "Great — I've got Bruno's basics. Let's get his feeding routine sorted: what does Bruno usually eat, how much does he have at each meal, when does he eat, and does he get treats or any foods to avoid?"
+
+USER: "He eats Royal Canin dry food twice a day at 8 AM and 7 PM. Two cups each meal and a few training treats."
+PAWPORT: "Perfect. For his daily routine, how often does he walk, how long are the walks, and what is his usual sleep time?"
+
+USER: "Two 30-minute walks a day and he sleeps around 10:30 PM."
+PAWPORT: "Thanks. Are there any behaviour quirks, comfort items, or care alerts we should know about?"
+
+SAFETY / SCOPE RULES:
+- PawPort is a handover documentation assistant, not a veterinarian.
+- Never diagnose medical conditions.
+- Never tell the owner what they should feed, what medication they should use, or whether behaviour is normal or abnormal.
+- Do not prescribe treatment or medical advice.
+- If the owner mentions a health concern, document exactly what they said and, where appropriate, suggest checking with their veterinarian without diagnosing.
+
+COMPLETION RULES:
+- Continue gathering information until the major handover categories have been reasonably covered.
+- Do not set progress to 6 just because six categories were mentioned once.
+- progress should reflect meaningful coverage of the six categories.
+- The final conversation should end with a clear confirmation that the handover information has been collected and the user can generate the Care Passport.
+
+DATA ACCURACY RULES:
+- Only include details explicitly provided by the pet parent.
+- Never infer, assume, or invent any pet information.
+- Do not invent age, breed, gender, feeding amounts, routines, medications, allergies, or medical issues.
+- If gender, age, breed, feeding quantity, medical information, allergies, etc. are unknown, leave them unknown/empty.
+- Do not infer gender from the pet's name, pronouns, breed, or context.
+- If a detail is not applicable, record that appropriately.
+- If the owner does not know an answer, leave it unknown rather than guessing.
+
+YOU MUST RETURN ONLY VALID JSON.
+No markdown. No extra explanation. No commentary outside the JSON object.
 
 Use exactly this structure:
-
 {
   "message": "Your conversational response to the pet parent",
   "profileUpdate": {
@@ -79,17 +143,94 @@ Use exactly this structure:
   "progress": 1
 }
 
-RULES FOR profileUpdate:
+profileUpdate rules:
 - Only include details confidently learned from the conversation.
 - Use empty objects if nothing new was learned for a category.
 - alerts should contain only important risks or care warnings.
-- progress should be a number from 1 to 6 indicating the stage of information collection.
-- IMPORTANT DATA ACCURACY RULE:
-  - Never infer, assume, or invent any pet information.
-  - Only add a detail to profileUpdate if the pet parent explicitly provided it.
-  - If gender, age, breed, feeding quantity, medical information, allergies, etc. are unknown, leave them unknown/empty.
-  - Do not infer gender from the pet's name, pronouns, breed, or context.
+- progress should be a number from 1 to 6 indicating the most meaningful stage of information collection.
+- Do not jump to a higher stage without meaningful progress in that category.
 `;
+
+function getGeminiErrorClassification(
+  status?: number | string | null,
+  code?: number | string | null,
+  message?: string | null
+) {
+  const normalizedStatus = status === undefined || status === null ? null : Number(status);
+  const normalizedCode = code === undefined || code === null ? null : String(code);
+  const text = [message, normalizedCode, normalizedStatus?.toString()]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (normalizedStatus === 429 || /rate limit|quota|too many requests/.test(text)) {
+    return "rate limiting";
+  }
+
+  if (
+    normalizedStatus === 401 ||
+    normalizedStatus === 403 ||
+    /unauthorized|forbidden|authentication|auth/.test(text)
+  ) {
+    return "authentication";
+  }
+
+  if (
+    normalizedStatus === 400 ||
+    normalizedStatus === 404 ||
+    /invalid|malformed|bad request|unsupported|not found/.test(text)
+  ) {
+    return /model|not found|unavailable/.test(text)
+      ? "model availability"
+      : "invalid request";
+  }
+
+  if (/model.*(not found|unavailable)|model.*not.*available|service.*unavailable/.test(text)) {
+    return "model availability";
+  }
+
+  return "another API error";
+}
+
+function getGeminiErrorDetails(error: unknown) {
+  const err = error as {
+    status?: number | string;
+    code?: number | string;
+    message?: string;
+    response?: { status?: number | string };
+    error?: { status?: number | string; code?: number | string; message?: string };
+    details?: Array<{ code?: number | string; message?: string } | Record<string, unknown>>;
+  };
+
+  const status =
+    err?.status ??
+    err?.response?.status ??
+    err?.error?.status ??
+    null;
+
+  const detailWithCode = err?.details?.find((detail) => {
+    const candidate = (detail as { code?: number | string } | undefined)?.code;
+    return typeof candidate === "string" || typeof candidate === "number";
+  }) as { code?: number | string } | undefined;
+
+  const code =
+    err?.code ??
+    err?.error?.code ??
+    detailWithCode?.code ??
+    null;
+
+  const message =
+    err?.message ??
+    err?.error?.message ??
+    (typeof error === "string" ? error : "Unknown Gemini API error");
+
+  return {
+    status,
+    code,
+    message,
+    classification: getGeminiErrorClassification(status, code, message),
+  };
+}
 
 export async function GET() {
   return NextResponse.json({
@@ -106,8 +247,10 @@ export async function POST(request: Request) {
     );
   }
 
+  let body: any = null;
+
   try {
-    const body = await request.json();
+    body = await request.json();
 
     const messages = Array.isArray(body?.messages) ? body.messages : [];
 
@@ -126,7 +269,7 @@ export async function POST(request: Request) {
       .join("\n");
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
+      model: GEMINI_MODEL,
       contents: `${SYSTEM_PROMPT}
 
 CONVERSATION SO FAR:
@@ -146,16 +289,35 @@ ${conversation}`,
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Gemini request failed:", error);
+    const errorDetails = getGeminiErrorDetails(error);
+    const status =
+      errorDetails.status === null || errorDetails.status === undefined
+        ? 500
+        : Number(errorDetails.status);
+
+    console.error("[PawPort Gemini API request failed]", {
+      httpStatus: errorDetails.status ?? "n/a",
+      geminiErrorCode: errorDetails.code ?? "n/a",
+      geminiErrorMessage: errorDetails.message,
+      classification: errorDetails.classification,
+      requestSummary: {
+        messageCount: Array.isArray(body?.messages) ? body.messages.length : 0,
+      },
+      rawError:
+        error instanceof Error
+          ? {
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+            }
+          : error,
+    });
 
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Unable to generate a response.",
+        error: "Unable to process that message right now. Please try again.",
       },
-      { status: 500 }
+      { status: Number.isFinite(status) ? status : 500 }
     );
   }
 }
