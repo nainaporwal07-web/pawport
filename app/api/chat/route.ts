@@ -296,6 +296,20 @@ ${conversation}`,
         : Number(errorDetails.status);
 
     console.error("[PawPort Gemini API request failed]", {
+      error,
+      errorMessage: error instanceof Error ? error.message : undefined,
+      errorStatus:
+        typeof error === "object" && error !== null && "status" in error
+          ? (error as { status?: unknown }).status
+          : undefined,
+      errorCode:
+        typeof error === "object" && error !== null && "code" in error
+          ? (error as { code?: unknown }).code
+          : undefined,
+      errorResponse:
+        typeof error === "object" && error !== null && "response" in error
+          ? (error as { response?: unknown }).response
+          : undefined,
       httpStatus: errorDetails.status ?? "n/a",
       geminiErrorCode: errorDetails.code ?? "n/a",
       geminiErrorMessage: errorDetails.message,
