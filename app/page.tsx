@@ -1,296 +1,198 @@
-"use client";
+﻿"use client"
 
-import Link from "next/link";
-import { useState } from "react";
-
-type Message = {
-  role: "user" | "assistant";
-  content: string;
-};
-
-type Profile = {
-  identity: Record<string, string>;
-  feeding: Record<string, string>;
-  routine: Record<string, string>;
-  behaviour: Record<string, string>;
-  comfort: Record<string, string>;
-  alerts: string[];
-};
-
-const emptyProfile: Profile = {
-  identity: {},
-  feeding: {},
-  routine: {},
-  behaviour: {},
-  comfort: {},
-  alerts: [],
-};
+import Link from "next/link"
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content:
-        "Hi! I'm PawPort 🐾 I'll help create a Care Passport for your pet. Let's start simple — what's your pet's name?",
-    },
-  ]);
-
-  const [input, setInput] = useState("");
-  const [profile, setProfile] = useState<Profile>(emptyProfile);
-  const [loading, setLoading] = useState(false);
-
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
-
-    const userMessage: Message = {
-      role: "user",
-      content: input,
-    };
-
-    const updatedMessages = [...messages, userMessage];
-
-    setMessages(updatedMessages);
-    setInput("");
-    setLoading(true);
-
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messages: updatedMessages,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Something went wrong");
-      }
-
-      setMessages([
-        ...updatedMessages,
-        {
-          role: "assistant",
-          content: data.message,
-        },
-      ]);
-
-      setProfile((previous) => ({
-        identity: {
-          ...previous.identity,
-          ...(data.profileUpdate?.identity || {}),
-        },
-        feeding: {
-          ...previous.feeding,
-          ...(data.profileUpdate?.feeding || {}),
-        },
-        routine: {
-          ...previous.routine,
-          ...(data.profileUpdate?.routine || {}),
-        },
-        behaviour: {
-          ...previous.behaviour,
-          ...(data.profileUpdate?.behaviour || {}),
-        },
-        comfort: {
-          ...previous.comfort,
-          ...(data.profileUpdate?.comfort || {}),
-        },
-        alerts: [
-          ...previous.alerts,
-          ...(data.profileUpdate?.alerts || []),
-        ],
-      }));
-    } catch (error) {
-      setMessages([
-        ...updatedMessages,
-        {
-          role: "assistant",
-          content: "Sorry, I couldn't respond right now. Please try again.",
-        },
-      ]);
-
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        padding: "40px",
-        fontFamily: "Arial, sans-serif",
-        background: "#f7f4ee",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
-        <div>
-          <h1>PawPort 🐾</h1>
-          <p>AI-powered Pet Care Handover</p>
+    <main className="min-h-screen bg-[#F8F7F2] text-[#24352B]">
+      {/* Navigation */}
+      <nav className="flex items-center justify-between px-8 py-5 md:px-16">
+        <div className="flex items-center gap-2">
+          <span className="text-3xl">≡ƒÉ╛</span>
+          <span className="text-2xl font-bold tracking-tight">PawPort</span>
         </div>
+
         <Link
           href="/handover"
-          style={{
-            display: "inline-block",
-            padding: "12px 20px",
-            borderRadius: "10px",
-            background: "#c97b46",
-            color: "white",
-            textDecoration: "none",
-            fontWeight: 600,
-          }}
+          className="rounded-full bg-[#24352B] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#3B5445]"
         >
-          Start Pet Handover
+          Create Care Passport ΓåÆ
         </Link>
-      </div>
+      </nav>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "2fr 1fr",
-          gap: "30px",
-          maxWidth: "1100px",
-          margin: "40px auto",
-        }}
-      >
-        {/* CHAT */}
-        <section
-          style={{
-            background: "white",
-            borderRadius: "16px",
-            padding: "24px",
-            minHeight: "550px",
-          }}
-        >
-          <h2>Tell me about your pet</h2>
+      {/* Hero */}
+      <section className="mx-auto grid max-w-7xl items-center gap-12 px-8 pb-20 pt-16 md:grid-cols-2 md:px-16 md:pt-24">
+        <div>
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#D8D6CB] bg-white px-4 py-2 text-sm">
+            ≡ƒÉ╛ AI-powered pet care handover
+          </div>
 
-          <div style={{ minHeight: "400px" }}>
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                style={{
-                  textAlign:
-                    message.role === "user" ? "right" : "left",
-                  marginBottom: "16px",
-                }}
-              >
-                <span
-                  style={{
-                    display: "inline-block",
-                    padding: "12px 16px",
-                    borderRadius: "14px",
-                    maxWidth: "75%",
-                    background:
-                      message.role === "user" ? "#244238" : "#eee",
-                    color:
-                      message.role === "user" ? "white" : "#222",
-                  }}
-                >
-                  {message.content}
-                </span>
+          <h1 className="max-w-3xl text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
+            Every pet comes with their own
+            <span className="text-[#C9784A]"> instructions.</span>
+          </h1>
+
+          <p className="mt-7 max-w-xl text-lg leading-relaxed text-[#617066]">
+            PawPort transforms scattered conversations between pet parents and boarding facilities into a structured
+            Care PassportΓÇöso every caregiver knows exactly what makes each pet feel safe, comfortable, and at home.
+          </p>
+
+          <div className="mt-9 flex flex-wrap gap-4">
+            <Link
+              href="/handover"
+              className="rounded-full bg-[#24352B] px-7 py-4 font-semibold text-white shadow-lg transition hover:-translate-y-1 hover:bg-[#3B5445]"
+            >
+              Start Pet Handover ≡ƒÉ╛
+            </Link>
+
+            <a
+              href="#how-it-works"
+              className="rounded-full border border-[#CFCBC0] bg-white px-7 py-4 font-semibold transition hover:bg-[#EFEDE5]"
+            >
+              See how it works
+            </a>
+          </div>
+
+          <div className="mt-12 flex gap-8 text-sm text-[#617066]">
+            <div>
+              <p className="text-2xl font-bold text-[#24352B]">3 min</p>
+              <p>Conversational handover</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-[#24352B]">1 profile</p>
+              <p>Structured Care Passport</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-[#24352B]">0</p>
+              <p>Critical details missed</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Hero Card */}
+        <div className="relative">
+          <div className="rounded-[2rem] bg-[#24352B] p-6 text-white shadow-2xl md:p-8">
+            <div className="mb-8 flex items-center justify-between">
+              <div>
+                <p className="text-sm text-[#B8C4BC]">CARE PASSPORT</p>
+                <h2 className="text-3xl font-bold">Bruno ≡ƒÉ╢</h2>
+              </div>
+              <div className="rounded-2xl bg-[#E9A96A] px-4 py-2 text-sm font-semibold text-[#24352B]">Active Stay</div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-2xl bg-white/10 p-4">
+                <p className="text-xs uppercase tracking-wider text-[#B8C4BC]">≡ƒì╜ Feeding</p>
+                <p className="mt-1 font-medium">8 AM & 7 PM ┬╖ Kibble + gravy</p>
+              </div>
+
+              <div className="rounded-2xl bg-white/10 p-4">
+                <p className="text-xs uppercase tracking-wider text-[#B8C4BC]">≡ƒÉò Social behaviour</p>
+                <p className="mt-1 font-medium">Slow introduction to unfamiliar dogs</p>
+              </div>
+
+              <div className="rounded-2xl border border-[#E9A96A]/40 bg-[#E9A96A]/10 p-4">
+                <p className="text-xs uppercase tracking-wider text-[#E9A96A]">ΓÜá Attention needed</p>
+                <p className="mt-1 font-medium">Anxiety during thunderstorms</p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center gap-3 border-t border-white/10 pt-5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#C9784A]">≡ƒÉ╛</div>
+              <p className="text-sm text-[#B8C4BC]">Every caregiver starts informed.</p>
+            </div>
+          </div>
+
+          <div className="absolute -bottom-5 -left-5 -z-0 h-28 w-28 rounded-full bg-[#E9A96A]/30 blur-2xl" />
+        </div>
+      </section>
+
+      {/* Problem */}
+      <section className="bg-white px-8 py-20 md:px-16">
+        <div className="mx-auto max-w-7xl">
+          <p className="mb-4 text-sm font-bold uppercase tracking-[0.2em] text-[#C9784A]">The problem</p>
+
+          <h2 className="max-w-3xl text-4xl font-bold tracking-tight md:text-5xl">
+            Important care instructions shouldn&apos;t get lost between shifts.
+          </h2>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {[
+              [
+                "≡ƒÆ¼",
+                "Scattered information",
+                "Instructions are spread across calls, WhatsApp messages and verbal conversations.",
+              ],
+              [
+                "≡ƒöä",
+                "Staff handovers",
+                "Critical details can disappear when caregivers and shifts change.",
+              ],
+              [
+                "ΓÜá∩╕Å",
+                "One missed detail",
+                "A feeding restriction or behavioural trigger can completely change a pet's stay.",
+              ],
+            ].map(([icon, title, text]) => (
+              <div key={title} className="rounded-3xl border border-[#E7E5DD] p-7">
+                <div className="text-3xl">{icon}</div>
+                <h3 className="mt-5 text-xl font-bold">{title}</h3>
+                <p className="mt-3 leading-relaxed text-[#617066]">{text}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
 
-            {loading && <p>PawPort is thinking... 🐾</p>}
+      {/* How it works */}
+      <section id="how-it-works" className="px-8 py-20 md:px-16">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#C9784A]">How PawPort works</p>
+            <h2 className="mt-4 text-4xl font-bold md:text-5xl">From conversation to continuity of care.</h2>
           </div>
 
-          <div style={{ display: "flex", gap: "10px" }}>
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") sendMessage();
-              }}
-              placeholder="Tell PawPort about your pet..."
-              style={{
-                flex: 1,
-                padding: "14px",
-                borderRadius: "10px",
-                border: "1px solid #ccc",
-              }}
-            />
-
-            <button
-              onClick={sendMessage}
-              disabled={loading}
-              style={{
-                padding: "14px 24px",
-                borderRadius: "10px",
-                border: "none",
-                background: "#c97b46",
-                color: "white",
-                cursor: "pointer",
-              }}
-            >
-              Send
-            </button>
+          <div className="mt-14 grid gap-8 md:grid-cols-4">
+            {[
+              ["01", "Tell us about your pet", "A natural conversation replaces long intake forms."],
+              ["02", "PawPort asks deeper", "Contextual follow-ups uncover details that matter."],
+              ["03", "Critical details surface", "Important instructions are automatically highlighted."],
+              ["04", "Care Passport created", "Every caregiver gets one structured pet profile."],
+            ].map(([number, title, text]) => (
+              <div key={number} className="relative">
+                <p className="text-5xl font-bold text-[#E9A96A]">{number}</p>
+                <h3 className="mt-5 text-xl font-bold">{title}</h3>
+                <p className="mt-3 leading-relaxed text-[#617066]">{text}</p>
+              </div>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* CARE PASSPORT */}
-        <aside
-          style={{
-            background: "#244238",
-            color: "white",
-            borderRadius: "16px",
-            padding: "24px",
-          }}
-        >
-          <h2>Care Passport 🐾</h2>
+      {/* CTA */}
+      <section className="px-8 pb-20 md:px-16">
+        <div className="mx-auto max-w-6xl rounded-[2rem] bg-[#C9784A] px-8 py-16 text-center text-white md:px-16">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-white/70">PawPort Care System</p>
+          <h2 className="mx-auto mt-4 max-w-3xl text-4xl font-bold md:text-6xl">
+            The handover shouldn&apos;t depend on memory.
+          </h2>
+          <p className="mx-auto mt-6 max-w-xl text-lg text-white/85">
+            Create a complete Care Passport before your pet&apos;s next stay.
+          </p>
 
-          <ProfileSection title="Identity" data={profile.identity} />
-          <ProfileSection title="Feeding" data={profile.feeding} />
-          <ProfileSection title="Routine" data={profile.routine} />
-          <ProfileSection title="Behaviour" data={profile.behaviour} />
-          <ProfileSection title="Comfort" data={profile.comfort} />
+          <Link
+            href="/handover"
+            className="mt-9 inline-block rounded-full bg-white px-8 py-4 font-semibold text-[#24352B] transition hover:scale-105"
+          >
+            Start Pet Handover ΓåÆ
+          </Link>
+        </div>
+      </section>
 
-          {profile.alerts.length > 0 && (
-            <div
-              style={{
-                marginTop: "20px",
-                padding: "12px",
-                border: "1px solid #d8a45d",
-                borderRadius: "10px",
-              }}
-            >
-              <strong>⚠ Care Alerts</strong>
-
-              {profile.alerts.map((alert, index) => (
-                <p key={index}>{alert}</p>
-              ))}
-            </div>
-          )}
-        </aside>
-      </div>
+      {/* Footer */}
+      <footer className="border-t border-[#E7E5DD] px-8 py-8 text-center text-sm text-[#617066]">
+        ≡ƒÉ╛ PawPort ΓÇö Every pet comes with their own instructions.
+      </footer>
     </main>
-  );
-}
-
-function ProfileSection({
-  title,
-  data,
-}: {
-  title: string;
-  data: Record<string, string>;
-}) {
-  const entries = Object.entries(data);
-
-  if (entries.length === 0) return null;
-
-  return (
-    <div style={{ marginTop: "20px" }}>
-      <strong>{title}</strong>
-
-      {entries.map(([key, value]) => (
-        <p key={key} style={{ fontSize: "14px", opacity: 0.9 }}>
-          {key}: {value}
-        </p>
-      ))}
-    </div>
-  );
+  )
 }
