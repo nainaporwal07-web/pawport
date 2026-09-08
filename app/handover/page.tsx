@@ -10,36 +10,6 @@ type ChatMessage = {
   content: string;
 };
 
-type ProfileSectionData = {
-  name?: string;
-  species?: string;
-  breed?: string;
-  age?: string;
-  gender?: string;
-  food?: string;
-  mealTimings?: string;
-  quantity?: string;
-  treats?: string;
-  foodsToAvoid?: string;
-  wakeUp?: string;
-  walks?: string;
-  toilet?: string;
-  sleep?: string;
-  aroundPeople?: string;
-  aroundAnimals?: string;
-  triggers?: string;
-  separationAnxiety?: string;
-  aggression?: string;
-  favouriteToys?: string;
-  comfortObjects?: string;
-  calmingPreferences?: string;
-  dislikes?: string;
-  allergies?: string;
-  medicalConditions?: string;
-  medication?: string;
-  emergencyInstructions?: string;
-};
-
 type CareProfile = {
   identity: {
     name?: string;
@@ -122,69 +92,9 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     role: "assistant",
     content:
-      "Hi! I’m PawPort. Tell me about your pet and I’ll turn the conversation into a Care Passport for their handover.",
+      "Hi! I'm PawPort. Tell me about your pet and I'll turn the conversation into a Care Passport for their handover.",
   },
 ];
-
-const sectionConfig = [
-  {
-    title: "Pet Identity",
-    fields: [
-      ["Name", "identity", "name"],
-      ["Species", "identity", "species"],
-      ["Breed", "identity", "breed"],
-      ["Age", "identity", "age"],
-      ["Gender", "identity", "gender"],
-    ],
-  },
-  {
-    title: "Feeding",
-    fields: [
-      ["Food", "feeding", "food"],
-      ["Meal timings", "feeding", "mealTimings"],
-      ["Quantity", "feeding", "quantity"],
-      ["Treats", "feeding", "treats"],
-      ["Foods to avoid", "feeding", "foodsToAvoid"],
-    ],
-  },
-  {
-    title: "Routine",
-    fields: [
-      ["Wake-up", "routine", "wakeUp"],
-      ["Walks", "routine", "walks"],
-      ["Toilet", "routine", "toilet"],
-      ["Sleep", "routine", "sleep"],
-    ],
-  },
-  {
-    title: "Behaviour",
-    fields: [
-      ["Around people", "behaviour", "aroundPeople"],
-      ["Around animals", "behaviour", "aroundAnimals"],
-      ["Triggers", "behaviour", "triggers"],
-      ["Separation anxiety", "behaviour", "separationAnxiety"],
-      ["Aggression", "behaviour", "aggression"],
-    ],
-  },
-  {
-    title: "Comfort",
-    fields: [
-      ["Favourite toys", "comfort", "favouriteToys"],
-      ["Comfort objects", "comfort", "comfortObjects"],
-      ["Calming preferences", "comfort", "calmingPreferences"],
-      ["Things they dislike", "comfort", "dislikes"],
-    ],
-  },
-  {
-    title: "Care Alerts",
-    fields: [
-      ["Allergies", "alerts", "allergies"],
-      ["Medical conditions", "alerts", "medicalConditions"],
-      ["Medication", "alerts", "medication"],
-      ["Emergency instructions", "alerts", "emergencyInstructions"],
-    ],
-  },
-] as const;
 
 const mergeProfile = (
   current: CareProfile,
@@ -235,7 +145,6 @@ const mergeProfile = (
     const cleanAlerts = incoming.alerts.filter(
       (alert): alert is string => typeof alert === "string" && alert.trim().length > 0
     );
-
     next.alerts = cleanAlerts.length > 0 ? cleanAlerts : [];
   }
 
@@ -247,12 +156,13 @@ const formatValue = (value: string | undefined | null): string => {
   return "Not provided yet";
 };
 
-const formatAlerts = (value: string[] | undefined) => {
+const formatAlerts = (value: string[] | undefined): string[] => {
   if (!Array.isArray(value) || value.length === 0) {
     return ["Not provided yet"];
   }
 
-  return value.filter((item) => typeof item === "string" && item.trim().length > 0);
+  const cleaned = value.filter((item) => typeof item === "string" && item.trim().length > 0);
+  return cleaned.length > 0 ? cleaned : ["Not provided yet"];
 };
 
 export default function HandoverPage() {
@@ -267,23 +177,22 @@ export default function HandoverPage() {
     if (typeof window === "undefined") return;
 
     const storedProfile = window.localStorage.getItem(STORAGE_KEY);
+    if (!storedProfile) return;
 
-    if (storedProfile) {
-      try {
-        const parsed = JSON.parse(storedProfile) as Partial<CareProfile>;
-        setLiveProfile({
-          ...EMPTY_PROFILE,
-          ...parsed,
-          identity: { ...EMPTY_PROFILE.identity, ...parsed.identity },
-          feeding: { ...EMPTY_PROFILE.feeding, ...parsed.feeding },
-          routine: { ...EMPTY_PROFILE.routine, ...parsed.routine },
-          behaviour: { ...EMPTY_PROFILE.behaviour, ...parsed.behaviour },
-          comfort: { ...EMPTY_PROFILE.comfort, ...parsed.comfort },
-          alerts: Array.isArray(parsed.alerts) ? parsed.alerts : [],
-        });
-      } catch {
-        // Ignore malformed stored data and fall back to the empty profile.
-      }
+    try {
+      const parsed = JSON.parse(storedProfile) as Partial<CareProfile>;
+      setLiveProfile({
+        ...EMPTY_PROFILE,
+        ...parsed,
+        identity: { ...EMPTY_PROFILE.identity, ...parsed.identity },
+        feeding: { ...EMPTY_PROFILE.feeding, ...parsed.feeding },
+        routine: { ...EMPTY_PROFILE.routine, ...parsed.routine },
+        behaviour: { ...EMPTY_PROFILE.behaviour, ...parsed.behaviour },
+        comfort: { ...EMPTY_PROFILE.comfort, ...parsed.comfort },
+        alerts: Array.isArray(parsed.alerts) ? parsed.alerts : [],
+      });
+    } catch {
+      // Ignore malformed stored data and fall back to the empty profile.
     }
   }, []);
 
@@ -292,66 +201,17 @@ export default function HandoverPage() {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(liveProfile));
   }, [liveProfile]);
 
-  const profileSections = useMemo(
+  const previewData = useMemo(
     () => [
-      {
-        title: "Pet Identity",
-        entries: [
-          ["Name", liveProfile.identity.name],
-          ["Species", liveProfile.identity.species],
-          ["Breed", liveProfile.identity.breed],
-          ["Age", liveProfile.identity.age],
-          ["Gender", liveProfile.identity.gender],
-        ],
-      },
-      {
-        title: "Feeding",
-        entries: [
-          ["Food", liveProfile.feeding.food],
-          ["Meal timings", liveProfile.feeding.mealTimings],
-          ["Quantity", liveProfile.feeding.quantity],
-          ["Treats", liveProfile.feeding.treats],
-          ["Foods to avoid", liveProfile.feeding.foodsToAvoid],
-        ],
-      },
-      {
-        title: "Routine",
-        entries: [
-          ["Wake-up", liveProfile.routine.wakeUp],
-          ["Walks", liveProfile.routine.walks],
-          ["Toilet", liveProfile.routine.toilet],
-          ["Sleep", liveProfile.routine.sleep],
-        ],
-      },
-      {
-        title: "Behaviour",
-        entries: [
-          ["Around people", liveProfile.behaviour.aroundPeople],
-          ["Around animals", liveProfile.behaviour.aroundAnimals],
-          ["Triggers", liveProfile.behaviour.triggers],
-          ["Other quirks", liveProfile.behaviour.otherQuirks],
-          ["Separation anxiety", liveProfile.behaviour.separationAnxiety],
-          ["Aggression", liveProfile.behaviour.aggression],
-        ],
-      },
-      {
-        title: "Comfort",
-        entries: [
-          ["Favourite toys", liveProfile.comfort.favouriteToys],
-          ["Comfort objects", liveProfile.comfort.comfortObjects],
-          ["Calming preferences", liveProfile.comfort.calmingPreferences],
-          ["Things they dislike", liveProfile.comfort.dislikes],
-        ],
-      },
-      {
-        title: "Care Alerts",
-        entries: [
-          ["Allergies", formatAlerts(liveProfile.alerts)[0]],
-          ["Medical conditions", ""],
-          ["Medication", ""],
-          ["Emergency instructions", ""],
-        ],
-      },
+      ["Name", formatValue(liveProfile.identity.name)],
+      ["Species", formatValue(liveProfile.identity.species)],
+      ["Breed", formatValue(liveProfile.identity.breed)],
+      ["Age", formatValue(liveProfile.identity.age)],
+      ["Food", formatValue(liveProfile.feeding.food)],
+      ["Meals", formatValue(liveProfile.feeding.mealTimings)],
+      ["Walks", formatValue(liveProfile.routine.walks)],
+      ["Sleep", formatValue(liveProfile.routine.sleep)],
+      ["Care notes", formatAlerts(liveProfile.alerts).join(", ")],
     ],
     [liveProfile]
   );
@@ -360,7 +220,6 @@ export default function HandoverPage() {
     if (typeof window !== "undefined") {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(liveProfile));
     }
-
     router.push("/passport");
   };
 
@@ -385,7 +244,6 @@ export default function HandoverPage() {
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data?.error || "Something went wrong while contacting PawPort.");
       }
@@ -393,7 +251,7 @@ export default function HandoverPage() {
       const assistantMessage =
         typeof data?.message === "string" && data.message.trim()
           ? data.message
-          : "Thanks — I’ve updated your pet’s handover details.";
+          : "Thanks — I've updated your pet's handover details.";
 
       setMessages((current) => [...current, { role: "assistant", content: assistantMessage }]);
 
@@ -408,7 +266,7 @@ export default function HandoverPage() {
       const message =
         error instanceof Error
           ? error.message
-          : "I’m having trouble reaching PawPort right now. Please try again.";
+          : "I'm having trouble reaching PawPort right now. Please try again.";
 
       setMessages((current) => [
         ...current,
@@ -432,41 +290,22 @@ export default function HandoverPage() {
             </div>
             <div className="flex items-center gap-3">
               <span className="text-xl font-semibold tracking-tight">PawPort</span>
-              <span className="hidden h-5 w-px bg-[#d9c4b5] sm:block" />
-              <span className="text-sm font-medium text-[#5a6b63]">Pet Handover</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="hidden items-center gap-2 rounded-full border border-[#e5d2c2] bg-white/60 px-3 py-1.5 text-sm font-medium text-[#1d453d] sm:flex">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#cc6f47]" />
-              Step {progress} of 6
-            </div>
-            <button className="rounded-full border border-[#d9c4b5] bg-transparent px-4 py-2 text-sm font-medium text-[#17352d] transition hover:bg-white">
-              Save & Exit
-            </button>
-          </div>
+          <button
+            type="button"
+            className="rounded-full border border-[#d9c4b5] bg-white/60 px-4 py-2 text-sm font-medium text-[#17352d] transition hover:bg-white"
+          >
+            Start Pet Handover
+          </button>
         </header>
 
-        <div className="grid gap-6 lg:grid-cols-[1.5fr_0.92fr]">
+        <div className="grid gap-6 lg:grid-cols-[1.55fr_0.95fr]">
           <section className="rounded-[30px] border border-[#e8d9c9] bg-[#fffdfb] p-4 shadow-[0_18px_40px_rgba(23,53,45,0.06)] sm:p-6 lg:p-8">
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#cc6f47]">
-                  PawPort care intake
-                </p>
-                <h1 className="text-3xl font-semibold tracking-tight text-[#17352d] sm:text-4xl">
-                  Tell us about your pet
-                </h1>
-              </div>
-              <div className="rounded-full border border-[#e8d7c9] bg-[#f7f1e9] px-3 py-1.5 text-sm font-medium text-[#17352d] sm:hidden">
-                Step {progress} of 6
-              </div>
-            </div>
-
-            <p className="mb-6 max-w-2xl text-base leading-7 text-[#4c615a]">
-              PawPort will turn this conversation into a polished Care Passport for your pet’s boarding stay.
-            </p>
+            <h1 className="mb-5 text-3xl font-semibold tracking-tight text-[#17352d] sm:text-4xl">
+              Tell me about your pet
+            </h1>
 
             <div className="rounded-[28px] border border-[#e8d9c9] bg-[#f9f3ee] p-3 sm:p-4">
               <div className="mb-4 flex h-[520px] flex-col gap-4 overflow-y-auto pr-1">
@@ -533,47 +372,21 @@ export default function HandoverPage() {
             </div>
           </section>
 
-          <aside className="lg:sticky lg:top-6 lg:self-start">
-            <div className="rounded-[30px] border border-[#ead9ca] bg-[#fffdfb] p-5 shadow-[0_18px_40px_rgba(23,53,45,0.06)] sm:p-6">
-              <div className="mb-5 flex items-center justify-between gap-4">
-                <h2 className="text-xl font-semibold tracking-tight text-[#17352d]">LIVE CARE PROFILE</h2>
-                <span className="rounded-full bg-[#edf3f1] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#3d5a52]">
-                  {progress}/6
-                </span>
-              </div>
+          <aside className="rounded-[30px] bg-[#17352d] p-5 text-white shadow-[0_18px_40px_rgba(23,53,45,0.06)] sm:p-6">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <h2 className="text-2xl font-semibold tracking-tight">Care Passport</h2>
+              <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#dfeae7]">
+                {progress}/6
+              </span>
+            </div>
 
-              <div className="space-y-5">
-                {[
-                  { title: "Pet Identity", data: profileSections[0].entries },
-                  { title: "Feeding", data: profileSections[1].entries },
-                  { title: "Routine", data: profileSections[2].entries },
-                  { title: "Behaviour", data: profileSections[3].entries },
-                  { title: "Comfort", data: profileSections[4].entries },
-                  { title: "Care Alerts", data: [
-                      ["Allergies", formatAlerts(liveProfile.alerts)[0]],
-                      ["Medical conditions", "Not provided yet"],
-                      ["Medication", "Not provided yet"],
-                      ["Emergency instructions", "Not provided yet"],
-                    ] },
-                ].map((section) => (
-                  <div key={section.title} className="rounded-[22px] border border-[#f1e3d6] bg-[#f9f3ee] p-4">
-                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#cc6f47]">
-                      {section.title}
-                    </h3>
-
-                    <div className="space-y-2.5">
-                      {section.data.map(([label, value]) => (
-                        <div key={label} className="flex items-start justify-between gap-3 border-b border-[#eee3d7] pb-2 last:border-b-0 last:pb-0">
-                          <span className="text-sm text-[#60756d]">{label}</span>
-                          <span className="max-w-[52%] text-right text-sm font-medium text-[#17352d]">
-                            {typeof value === "string" && value.trim() ? value : "Not provided yet"}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="space-y-3">
+              {previewData.map(([label, value]) => (
+                <div key={label} className="rounded-2xl bg-white/6 p-3">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#b9c9c4]">{label}</div>
+                  <div className="mt-1 text-sm text-[#f8f3ee]">{value}</div>
+                </div>
+              ))}
             </div>
           </aside>
         </div>

@@ -8,7 +8,7 @@ export default function Home() {
       {/* Navigation */}
       <nav className="flex items-center justify-between px-8 py-5 md:px-16">
         <div className="flex items-center gap-2">
-          <span className="text-3xl">≡ƒÉ╛</span>
+          <span className="text-3xl">🐾</span>
           <span className="text-2xl font-bold tracking-tight">PawPort</span>
         </div>
 
@@ -16,7 +16,7 @@ export default function Home() {
           href="/handover"
           className="rounded-full bg-[#24352B] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#3B5445]"
         >
-          Create Care Passport ΓåÆ
+          Create Care Passport →
         </Link>
       </nav>
 
@@ -24,7 +24,7 @@ export default function Home() {
       <section className="mx-auto grid max-w-7xl items-center gap-12 px-8 pb-20 pt-16 md:grid-cols-2 md:px-16 md:pt-24">
         <div>
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#D8D6CB] bg-white px-4 py-2 text-sm">
-            ≡ƒÉ╛ AI-powered pet care handover
+            🐾 AI-powered pet care handover
           </div>
 
           <h1 className="max-w-3xl text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
@@ -34,7 +34,7 @@ export default function Home() {
 
           <p className="mt-7 max-w-xl text-lg leading-relaxed text-[#617066]">
             PawPort transforms scattered conversations between pet parents and boarding facilities into a structured
-            Care PassportΓÇöso every caregiver knows exactly what makes each pet feel safe, comfortable, and at home.
+            Care Passport—so every caregiver knows exactly what makes each pet feel safe, comfortable, and at home.
           </p>
 
           <div className="mt-9 flex flex-wrap gap-4">
@@ -42,7 +42,7 @@ export default function Home() {
               href="/handover"
               className="rounded-full bg-[#24352B] px-7 py-4 font-semibold text-white shadow-lg transition hover:-translate-y-1 hover:bg-[#3B5445]"
             >
-              Start Pet Handover ≡ƒÉ╛
+              Start Pet Handover 🐾
             </Link>
 
             <a
@@ -75,30 +75,30 @@ export default function Home() {
             <div className="mb-8 flex items-center justify-between">
               <div>
                 <p className="text-sm text-[#B8C4BC]">CARE PASSPORT</p>
-                <h2 className="text-3xl font-bold">Bruno ≡ƒÉ╢</h2>
+                <h2 className="text-3xl font-bold">Bruno 🐶</h2>
               </div>
               <div className="rounded-2xl bg-[#E9A96A] px-4 py-2 text-sm font-semibold text-[#24352B]">Active Stay</div>
             </div>
 
             <div className="space-y-4">
               <div className="rounded-2xl bg-white/10 p-4">
-                <p className="text-xs uppercase tracking-wider text-[#B8C4BC]">≡ƒì╜ Feeding</p>
-                <p className="mt-1 font-medium">8 AM & 7 PM ┬╖ Kibble + gravy</p>
+                <p className="text-xs uppercase tracking-wider text-[#B8C4BC]">🍽 Feeding</p>
+                <p className="mt-1 font-medium">8 AM & 7 PM · Kibble + gravy</p>
               </div>
 
               <div className="rounded-2xl bg-white/10 p-4">
-                <p className="text-xs uppercase tracking-wider text-[#B8C4BC]">≡ƒÉò Social behaviour</p>
+                <p className="text-xs uppercase tracking-wider text-[#B8C4BC]">🐕 Social behaviour</p>
                 <p className="mt-1 font-medium">Slow introduction to unfamiliar dogs</p>
               </div>
 
               <div className="rounded-2xl border border-[#E9A96A]/40 bg-[#E9A96A]/10 p-4">
-                <p className="text-xs uppercase tracking-wider text-[#E9A96A]">ΓÜá Attention needed</p>
+                <p className="text-xs uppercase tracking-wider text-[#E9A96A]">⚠ Attention needed</p>
                 <p className="mt-1 font-medium">Anxiety during thunderstorms</p>
               </div>
             </div>
 
             <div className="mt-6 flex items-center gap-3 border-t border-white/10 pt-5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#C9784A]">≡ƒÉ╛</div>
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#C9784A]">🐾</div>
               <p className="text-sm text-[#B8C4BC]">Every caregiver starts informed.</p>
             </div>
           </div>
@@ -119,17 +119,17 @@ export default function Home() {
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {[
               [
-                "≡ƒÆ¼",
+                "💬",
                 "Scattered information",
                 "Instructions are spread across calls, WhatsApp messages and verbal conversations.",
               ],
               [
-                "≡ƒöä",
+                "🔄",
                 "Staff handovers",
                 "Critical details can disappear when caregivers and shifts change.",
               ],
               [
-                "ΓÜá∩╕Å",
+                "⚠️",
                 "One missed detail",
                 "A feeding restriction or behavioural trigger can completely change a pet's stay.",
               ],
@@ -184,14 +184,14 @@ export default function Home() {
             href="/handover"
             className="mt-9 inline-block rounded-full bg-white px-8 py-4 font-semibold text-[#24352B] transition hover:scale-105"
           >
-            Start Pet Handover ΓåÆ
+            Start Pet Handover →
           </Link>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="border-t border-[#E7E5DD] px-8 py-8 text-center text-sm text-[#617066]">
-        ≡ƒÉ╛ PawPort ΓÇö Every pet comes with their own instructions.
+        🐾 PawPort — Every pet comes with their own instructions.
       </footer>
     </main>
   )
