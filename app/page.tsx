@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 type Message = {
@@ -127,8 +128,26 @@ export default function Home() {
         background: "#f7f4ee",
       }}
     >
-      <h1>PawPort 🐾</h1>
-      <p>AI-powered Pet Care Handover</p>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
+        <div>
+          <h1>PawPort 🐾</h1>
+          <p>AI-powered Pet Care Handover</p>
+        </div>
+        <Link
+          href="/handover"
+          style={{
+            display: "inline-block",
+            padding: "12px 20px",
+            borderRadius: "10px",
+            background: "#c97b46",
+            color: "white",
+            textDecoration: "none",
+            fontWeight: 600,
+          }}
+        >
+          Start Pet Handover
+        </Link>
+      </div>
 
       <div
         style={{
