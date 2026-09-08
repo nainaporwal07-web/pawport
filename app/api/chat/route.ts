@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
 const apiKey = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = "gemini-2.5-flash-lite";
+const GEMINI_MODEL = "gemini-3.5-flash-lite";
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 const SYSTEM_PROMPT = `
@@ -296,20 +296,6 @@ ${conversation}`,
         : Number(errorDetails.status);
 
     console.error("[PawPort Gemini API request failed]", {
-      error,
-      errorMessage: error instanceof Error ? error.message : undefined,
-      errorStatus:
-        typeof error === "object" && error !== null && "status" in error
-          ? (error as { status?: unknown }).status
-          : undefined,
-      errorCode:
-        typeof error === "object" && error !== null && "code" in error
-          ? (error as { code?: unknown }).code
-          : undefined,
-      errorResponse:
-        typeof error === "object" && error !== null && "response" in error
-          ? (error as { response?: unknown }).response
-          : undefined,
       httpStatus: errorDetails.status ?? "n/a",
       geminiErrorCode: errorDetails.code ?? "n/a",
       geminiErrorMessage: errorDetails.message,
