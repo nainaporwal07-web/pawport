@@ -289,20 +289,25 @@ export async function POST(request: Request) {
       );
     }
 
-    const conversation = messages
-      .map((msg: { role: string; content: string }) => {
+    const normalizedMessages = messages.map((msg: { role?: string; content?: string; text?: string }) => ({
+      role: msg?.role === "user" || msg?.role === "assistant" ? msg.role : "user",
+      content: typeof msg?.content === "string" ? msg.content : typeof msg?.text === "string" ? msg.text : "",
+    }));
+
+    const conversation = normalizedMessages
+      .map((msg: { role: "user" | "assistant"; content: string }) => {
         const speaker = msg.role === "user" ? "PET PARENT" : "PET HANDBOOK";
         return `${speaker}: ${msg.content}`;
       })
       .join("\n");
 
     const latestUserMessage =
-      [...messages]
+      [...normalizedMessages]
         .reverse()
-        .find((msg: { role?: string; content?: string }) => msg?.role === "user" && typeof msg?.content === "string" && msg.content.trim())
-        ?.content?.trim() ?? null;
+        .find((msg) => msg.role === "user" && msg.content.trim())
+        ?.content.trim() ?? null;
 
-    const ownerPetProfile = buildPetProfileFromConversation(messages);
+    const ownerPetProfile = buildPetProfileFromConversation(normalizedMessages);
     const legacyProfileUpdate = toLegacyProfileUpdate(ownerPetProfile);
     const knownProfileSummary = JSON.stringify(legacyProfileUpdate, null, 2);
 
