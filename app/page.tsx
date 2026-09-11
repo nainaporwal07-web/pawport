@@ -40,39 +40,15 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative">
+          <div className="relative flex items-end justify-center overflow-hidden">
             <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-[#d8a16a]/30 blur-2xl" />
             <div className="absolute -bottom-8 -left-6 h-28 w-28 rounded-full bg-[#a6b9a8]/40 blur-2xl" />
 
-            <div className="relative overflow-hidden rounded-[2rem] border border-[#e7ddcf] bg-[#fffdfb] shadow-xl">
-              <div className="bg-[#17352d] px-8 py-6 text-[#f7f1e9]">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold uppercase tracking-[0.2em] text-[#dfeae7]">PET HANDBOOK</span>
-                  <span className="rounded-full bg-[#d8a16a] px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#17352d]">
-                    Live care notes
-                  </span>
-                </div>
-                <div className="mt-6">
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-[#cfe0d8]">Profile status</p>
-                  <p className="mt-2 text-3xl font-bold tracking-tight">No default pet</p>
-                  <p className="mt-2 text-sm text-[#dfeae7]">Built from the conversation as it happens.</p>
-                </div>
-              </div>
-              <div className="space-y-4 p-6">
-                <div className="rounded-2xl bg-[#f3eee8] p-4">
-                  <p className="text-xs uppercase tracking-[0.16em] text-[#617066]">Identity</p>
-                  <p className="mt-1 font-medium text-[#17352d]">Name, species, breed, age, sex remain unknown until shared.</p>
-                </div>
-                <div className="rounded-2xl bg-[#f3eee8] p-4">
-                  <p className="text-xs uppercase tracking-[0.16em] text-[#617066]">Feeding</p>
-                  <p className="mt-1 font-medium text-[#17352d]">Captured directly from the owner’s routine and preferences.</p>
-                </div>
-                <div className="rounded-2xl border border-[#e6c3b0] bg-[#fff1ea] p-4">
-                  <p className="text-xs uppercase tracking-[0.16em] text-[#cc6f47]">Care detail</p>
-                  <p className="mt-1 font-medium text-[#17352d]">Only confirmed information appears in the final handbook.</p>
-                </div>
-              </div>
-            </div>
+            <img
+              src="/pet-handbook-hero.png"
+              alt=""
+              className="h-[360px] w-auto max-w-[92%] object-contain object-bottom"
+            />
           </div>
         </div>
       </section>
