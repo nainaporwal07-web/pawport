@@ -1,6 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
-import { getGbifTaxonomyContext, shouldCheckSpeciesContext } from "@/lib/gbif";
 import { getAnimalContext } from "@/lib/knowledge";
 import { buildPetProfileFromConversation, toLegacyProfileUpdate } from "@/lib/pet-profile";
 
@@ -311,7 +310,7 @@ export async function POST(request: Request) {
     const legacyProfileUpdate = toLegacyProfileUpdate(ownerPetProfile);
     const knownProfileSummary = JSON.stringify(legacyProfileUpdate, null, 2);
 
-    const shouldQueryKnowledge = Boolean(latestUserMessage && shouldCheckSpeciesContext(latestUserMessage));
+    const shouldQueryKnowledge = Boolean(latestUserMessage);
     const animalKnowledge = shouldQueryKnowledge
       ? await getAnimalContext({
           userMessage: latestUserMessage,

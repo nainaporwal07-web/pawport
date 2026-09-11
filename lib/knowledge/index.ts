@@ -1,16 +1,9 @@
-import { getGbifTaxonomyContext } from "@/lib/gbif";
 import { getFallbackKnowledge } from "./fallback";
-import { getDogBreedContext } from "./dogApi";
-import { getGlobalAnimalGuideContext } from "./globalAnimalGuide";
 import { getVeterinarySafetyContext } from "./veterinary";
 import type { AnimalContextQuery, AnimalKnowledgeContext } from "./types";
 
 function dedupe(values: string[]): string[] {
   return Array.from(new Set(values.filter((value) => value && value.trim().length > 0).map((value) => value.trim())));
-}
-
-function normalizeQuery(value: string | null | undefined): string {
-  return (value ?? "").trim().toLowerCase();
 }
 
 export async function getAnimalContext({ userMessage, species, breed, conversation }: AnimalContextQuery): Promise<AnimalKnowledgeContext | null> {
@@ -26,33 +19,6 @@ export async function getAnimalContext({ userMessage, species, breed, conversati
   const safetyNotes: string[] = [];
   const fallbackNotes: string[] = [];
   const sources: string[] = [];
-
-  const gbifContext = await getGbifTaxonomyContext(query);
-  if (gbifContext) {
-    sources.push("gbif");
-    const details = [
-      gbifContext.scientificName ? `Scientific name: ${gbifContext.scientificName}.` : null,
-      gbifContext.canonicalName ? `Canonical name: ${gbifContext.canonicalName}.` : null,
-      gbifContext.rank ? `Taxonomic rank: ${gbifContext.rank}.` : null,
-      gbifContext.family ? `Family: ${gbifContext.family}.` : null,
-      gbifContext.genus ? `Genus: ${gbifContext.genus}.` : null,
-      gbifContext.species ? `Species: ${gbifContext.species}.` : null,
-    ].filter(Boolean) as string[];
-
-    generalFacts.push(...details);
-  }
-
-  const dogContext = await getDogBreedContext(normalizeQuery(species) ? species : breed ?? query);
-  if (dogContext) {
-    sources.push("dog-api");
-    breedTendencies.push(...dogContext);
-  }
-
-  const guideContext = await getGlobalAnimalGuideContext(normalizeQuery(species) ? species : breed ?? query);
-  if (guideContext) {
-    sources.push("global-animal-guide");
-    generalFacts.push(...guideContext);
-  }
 
   const fallback = getFallbackKnowledge(query);
   if (fallback) {
