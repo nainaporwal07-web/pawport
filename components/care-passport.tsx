@@ -117,7 +117,7 @@ export function CarePassport({
     setTimeout(() => setDownloaded(null), 2200);
   }
 
-  const identityEntries = [
+  const identityEntries: Array<[string, string]> = [
     ["Name", formatValue(identity.name)],
     ["Species", formatValue(identity.species)],
     ["Breed", formatValue(identity.breed)],
@@ -125,7 +125,7 @@ export function CarePassport({
     ["Sex", formatValue(identity.sex)],
   ];
 
-  const feedingEntries = [
+  const feedingEntries: Array<[string, string]> = [
     ["Food", formatValue(feeding.food)],
     ["Meal timings", formatValue(feeding.mealTimes ?? feeding.mealTimings)],
     ["Quantity", formatValue(feeding.quantity)],
@@ -133,14 +133,14 @@ export function CarePassport({
     ["Foods to avoid", formatValue(feeding.foodsToAvoid)],
   ];
 
-  const routineEntries = [
+  const routineEntries: Array<[string, string]> = [
     ["Wake-up", formatValue(routine.wakeUp)],
     ["Walks", formatValue(routine.walks)],
     ["Toilet", formatValue(routine.toilet)],
     ["Sleep", formatValue(routine.sleep)],
   ];
 
-  const behaviourEntries = [
+  const behaviourEntries: Array<[string, string]> = [
     ["Around people", formatValue(behaviour.aroundPeople)],
     ["Around animals", formatValue(behaviour.aroundAnimals)],
     ["Triggers", formatValue(behaviour.triggers)],
@@ -149,35 +149,37 @@ export function CarePassport({
     ["Other quirks", formatValue(behaviour.otherQuirks)],
   ];
 
-  const comfortEntries = [
+  const comfortEntries: Array<[string, string]> = [
     ["Favourite toys", formatValue(comfort.favouriteToys)],
     ["Comfort objects", formatValue(comfort.comfortObjects)],
     ["Calming preferences", formatValue(comfort.calmingPreferences)],
     ["Things they dislike", formatValue(comfort.dislikes)],
   ];
 
-  const likesEntries = [
+  const likesEntries: Array<[string, string]> = [
     ["Likes", formatValue(likes.toys ?? likes.affection ?? likes.touch)],
     ["Comfort rituals", formatValue(likes.affection)],
   ];
 
-  const dislikesEntries = [
+  const dislikesEntries: Array<[string, string]> = [
     ["Dislikes", formatValue(dislikes.touch ?? dislikes.handFeeding ?? dislikes.other)],
     ["Handling dislikes", formatValue(dislikes.beingHeld)],
   ];
 
-  const medicalEntries = [
+  const medicalEntries: Array<[string, string]> = [
     ["Conditions", formatValue(medicalInformation.conditions)],
     ["Mobility", formatValue(medicalInformation.mobility)],
     ["Medication", formatValue(medicalInformation.medication ?? medicalInformation.notes)],
     ["Allergies", formatValue(allergies.foods ?? allergies.medications ?? allergies.environmental)],
   ];
 
-  const specialEntries = [
+  const specialEntries: Array<[string, string]> = [
     ["Care notes", formatValue(special.careNotes)],
     ["Handling notes", formatValue(special.handlingNotes)],
     ["Routines", formatValue(special.routines)],
   ];
+
+  const likesAndDislikesEntries: Array<[string, string]> = [...likesEntries, ...dislikesEntries];
 
   return (
     <div className="print-root fixed inset-0 z-50 overflow-y-auto bg-[#17352d]/40 backdrop-blur-sm">
@@ -230,7 +232,7 @@ export function CarePassport({
             {feedingEntries.some(([, value]) => value !== "Not provided yet") && renderSection("Feeding", feedingEntries)}
             {routineEntries.some(([, value]) => value !== "Not provided yet") && renderSection("Daily routine", routineEntries)}
             {behaviourEntries.some(([, value]) => value !== "Not provided yet") && renderSection("Behaviour", behaviourEntries)}
-            {likesEntries.some(([, value]) => value !== "Not provided yet") && renderSection("Likes & dislikes", [...likesEntries, ...dislikesEntries])}
+            {likesEntries.some(([, value]) => value !== "Not provided yet") && renderSection("Likes & dislikes", likesAndDislikesEntries)}
             {comfortEntries.some(([, value]) => value !== "Not provided yet") && renderSection("Comfort preferences", comfortEntries)}
             {medicalEntries.some(([, value]) => value !== "Not provided yet") && renderSection("Health & medications", medicalEntries)}
             {specialEntries.some(([, value]) => value !== "Not provided yet") && renderSection("Special care", specialEntries)}

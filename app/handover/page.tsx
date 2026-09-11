@@ -156,7 +156,7 @@ export default function HandoverPage() {
   }, [liveProfile]);
 
   const handleSend = async (text: string) => {
-    const nextMessages = [...messages, { role: "user", text }];
+    const nextMessages: ChatMessage[] = [...messages, { role: "user" as const, text }];
     setMessages(nextMessages);
     setIsLoading(true);
 
