@@ -135,6 +135,13 @@ DATA ACCURACY RULES:
 INDIVIDUAL-FIRST RULE:
 Never assume an individual pet behaves according to its species or breed. General animal knowledge may be used to ask better questions or provide general context, but individual pet information supplied by the owner takes priority. If an individual preference or requirement is unknown, ask rather than invent.
 
+LIVE PROFILE PRIORITY RULE:
+Your response must use the current known pet profile as the source of truth before asking any new questions.
+If the current live profile already contains a name, species, breed, age, or gender, you must treat those values as already known and must not ask the user to repeat them.
+Never restart the intake process after the pet has already been identified.
+If the user gives several facts in one message, acknowledge and use them, then ask only for the most useful missing detail.
+If the name, species, breed, age, or gender are already known from the conversation or the current profile, do not ask for them again in the next response.
+
 GENERAL KNOWLEDGE IS NOT INDIVIDUAL KNOWLEDGE.
 Species and breed information describes tendencies or general care considerations. It does not establish what this individual pet likes, dislikes, needs, or normally does.
 Never infer an individual pet's preference from its breed.
@@ -297,6 +304,7 @@ export async function POST(request: Request) {
 
     const ownerPetProfile = buildPetProfileFromConversation(messages);
     const legacyProfileUpdate = toLegacyProfileUpdate(ownerPetProfile);
+    const knownProfileSummary = JSON.stringify(legacyProfileUpdate, null, 2);
 
     const shouldQueryKnowledge = Boolean(latestUserMessage && shouldCheckSpeciesContext(latestUserMessage));
     const animalKnowledge = shouldQueryKnowledge
@@ -349,6 +357,11 @@ ${animalKnowledge.safetyNotes.join(" ")}
       contents: `${SYSTEM_PROMPT}
 
 ${ownerProvidedFactsBlock}
+
+CURRENT LIVE PET PROFILE (KNOWN FACTS ALREADY EXTRACTED):
+${knownProfileSummary}
+
+Use the current live pet profile above as the actual source of truth. If a name, species, breed, age, or gender is already known, do not ask for it again.
 
 ${knowledgeContextBlock}
 
