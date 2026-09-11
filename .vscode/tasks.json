@@ -1,0 +1,137 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Validate pet memory logic",
+			"type": "shell",
+			"command": "node --experimental-strip-types -e \"import { buildPetProfileFromConversation } from './lib/pet-profile.ts'; const one = buildPetProfileFromConversation([{role:'user',content:'My Labrador Bruno hates hand-feeding.'}]); const two = buildPetProfileFromConversation([{role:'user',content:'My Labrador Max only eats when I hand-feed him.'}]); const three = buildPetProfileFromConversation([{role:'user',content:'My Labrador Bruno hates hand-feeding.'},{role:'user',content:'Actually, he now eats independently.'}]); console.log(JSON.stringify({ one: { name: one.identity.name, species: one.identity.species, handFeeding: one.feeding.handFeeding, dislikes: one.dislikes.handFeeding }, two: { name: two.identity.name, species: two.identity.species, handFeeding: two.feeding.handFeeding, likes: two.likes.handFeeding }, three: { name: three.identity.name, handFeeding: three.feeding.handFeeding, dislikes: three.dislikes.handFeeding } }, null, 2));\"",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Validate pet memory script",
+			"type": "shell",
+			"command": "node .\\validate_profile.js",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Build PawPort app",
+			"type": "shell",
+			"command": "npm run build",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build with execution policy bypass",
+			"type": "shell",
+			"command": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"Set-Location 'C:\\Users\\naina\\pawportb'; npm run build\"",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Delete scratch files and build app",
+			"type": "shell",
+			"command": "Set-Location 'C:\\Users\\naina\\pawportb'; Remove-Item -Force debug_validate.js, validate_profile.js -ErrorAction SilentlyContinue; node .\\node_modules\\next\\dist\\bin\\next build",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Finalize build validation",
+			"type": "shell",
+			"command": "Set-Location 'C:\\Users\\naina\\pawportb'; Remove-Item -Force debug_validate.js, validate_profile.js, tmp-check.ts -ErrorAction SilentlyContinue; node .\\node_modules\\next\\dist\\bin\\next build",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Validate species/breed extraction",
+			"type": "shell",
+			"command": "Set-Location 'C:\\Users\\naina\\pawportb'; node --input-type=module --eval \"import { buildPetProfileFromConversation } from './lib/pet-profile.ts'; const t1 = buildPetProfileFromConversation([{ role: 'user', content: 'My Labrador Bruno hates hand-feeding.' }]); const t2 = buildPetProfileFromConversation([{ role: 'user', content: 'My Labrador Max only eats when I hand-feed him.' }]); const t3 = buildPetProfileFromConversation([{ role: 'user', content: 'My cockatiel Rio doesn't like being touched.' }]); const t4 = buildPetProfileFromConversation([{ role: 'user', content: 'My Sulcata tortoise named Milo needs a warm basking spot.' }]); console.log(JSON.stringify({ t1: { name: t1.identity.name, species: t1.identity.species, breed: t1.speciesBreed.breed, handFeeding: t1.feeding.handFeeding, dislike: t1.dislikes.handFeeding }, t2: { name: t2.identity.name, species: t2.identity.species, breed: t2.speciesBreed.breed, handFeeding: t2.feeding.handFeeding }, t3: { name: t3.identity.name, species: t3.identity.species, dislike: t3.dislikes.touch }, t4: { name: t4.identity.name, species: t4.identity.species, breed: t4.speciesBreed.breed } }, null, 2));\"",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Verify pet profile extraction",
+			"type": "shell",
+			"command": "Set-Location 'C:\\Users\\naina\\pawportb'; node .\\tmp-check.mjs",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Production build verification",
+			"type": "shell",
+			"command": "Set-Location 'C:\\Users\\naina\\pawportb'; Remove-Item -Recurse -Force .tmpcheck, tmp-check.ts, tmp-check.mjs -ErrorAction SilentlyContinue; npm run build",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Clean temp files and verify build",
+			"type": "shell",
+			"command": "Set-Location 'C:\\Users\\naina\\pawportb'; Remove-Item -Force tmp-check.mjs, tmp-check.ts -ErrorAction SilentlyContinue; Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; npm.cmd run build",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Final regression proof",
+			"type": "shell",
+			"command": "Set-Location 'C:\\Users\\naina\\pawportb'; node .\\tmp-check.mjs",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Regressions and build proof",
+			"type": "shell",
+			"command": "Set-Location 'C:\\Users\\naina\\pawportb'; node .\\tmp-check.mjs; Remove-Item -Force tmp-check.mjs -ErrorAction SilentlyContinue; npm.cmd run build",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "test"
+		},
+		{
+			"label": "Inspect v0 ZIP read-only",
+			"type": "shell",
+			"command": "if exist C:\\temp\\paw-port-v0-inspect rmdir /s /q C:\\temp\\paw-port-v0-inspect; mkdir C:\\temp\\paw-port-v0-inspect; powershell -NoProfile -ExecutionPolicy Bypass -Command \"Expand-Archive -LiteralPath 'C:\\Users\\naina\\Downloads\\paw-port.zip' -DestinationPath 'C:\\temp\\paw-port-v0-inspect' -Force\"; dir /b C:\\temp\\paw-port-v0-inspect",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "inspect"
+		},
+		{
+			"label": "Extract read-only v0 ZIP",
+			"type": "shell",
+			"command": "$d = 'C:\\temp\\paw-port-v0-inspect'; if (Test-Path $d) { Remove-Item -Recurse -Force $d }; New-Item -ItemType Directory -Path $d | Out-Null; Expand-Archive -LiteralPath 'C:\\Users\\naina\\Downloads\\paw-port.zip' -DestinationPath $d -Force; Get-ChildItem $d -Force | Select-Object Name,Mode",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "inspect"
+		},
+		{
+			"label": "Build app",
+			"type": "shell",
+			"command": "npm run build",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build app with policy bypass",
+			"type": "shell",
+			"command": "powershell -ExecutionPolicy Bypass -NoProfile -Command \"Set-Location 'C:\\Users\\naina\\pawportb'; npm run build\"",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		}
+	]
+}

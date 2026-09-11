@@ -1,198 +1,171 @@
-﻿"use client"
+﻿import Link from "next/link";
+import { PawLogo, PawMark } from "@/components/paw-logo";
+import { SiteHeader } from "@/components/site-header";
 
-import Link from "next/link"
-
-export default function Home() {
+export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#F8F7F2] text-[#24352B]">
-      {/* Navigation */}
-      <nav className="flex items-center justify-between px-8 py-5 md:px-16">
-        <div className="flex items-center gap-2">
-          <span className="text-3xl">🐾</span>
-          <span className="text-2xl font-bold tracking-tight">PawPort</span>
-        </div>
+    <div className="min-h-screen bg-[#f7f1e9]">
+      <SiteHeader />
 
-        <Link
-          href="/handover"
-          className="rounded-full bg-[#24352B] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#3B5445]"
-        >
-          Create Care Passport →
-        </Link>
-      </nav>
+      <section className="relative overflow-hidden">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-16 pt-14 md:grid-cols-2 md:px-8 md:pb-24 md:pt-20">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#e7ddcf] bg-[#fffdfb] px-4 py-1.5 text-sm font-medium text-[#617066]">
+              <PawMark className="h-4 w-4 text-[#cc6f47]" />
+              AI-powered pet care handover
+            </span>
 
-      {/* Hero */}
-      <section className="mx-auto grid max-w-7xl items-center gap-12 px-8 pb-20 pt-16 md:grid-cols-2 md:px-16 md:pt-24">
-        <div>
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#D8D6CB] bg-white px-4 py-2 text-sm">
-            🐾 AI-powered pet care handover
+            <h1 className="mt-6 text-5xl font-bold leading-[1.02] tracking-tight text-[#17352d] md:text-6xl lg:text-7xl">
+              Every pet comes with their own <span className="text-[#cc6f47]">care story.</span>
+            </h1>
+
+            <p className="mt-6 max-w-md text-lg leading-relaxed text-[#617066]">
+              PET HANDBOOK turns a natural conversation into a beautiful, trustworthy care handbook that follows the pet through every handover.
+            </p>
+
+            <div className="mt-9 flex flex-wrap items-center gap-4">
+              <Link
+                href="/handover"
+                className="group inline-flex items-center gap-2 rounded-full bg-[#17352d] px-7 py-4 font-semibold text-[#f7f1e9] shadow-lg shadow-[#17352d]/20 transition-all hover:-translate-y-0.5 hover:shadow-xl"
+              >
+                Start care conversation
+                <span className="transition-transform group-hover:translate-x-1">→</span>
+              </Link>
+              <Link
+                href="#how-it-works"
+                className="rounded-full border border-[#e7ddcf] bg-[#fffdfb] px-7 py-4 font-semibold text-[#17352d] transition-colors hover:bg-[#f3eee8]"
+              >
+                See how it works
+              </Link>
+            </div>
           </div>
 
-          <h1 className="max-w-3xl text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
-            Every pet comes with their own
-            <span className="text-[#C9784A]"> instructions.</span>
-          </h1>
+          <div className="relative">
+            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-[#d8a16a]/30 blur-2xl" />
+            <div className="absolute -bottom-8 -left-6 h-28 w-28 rounded-full bg-[#a6b9a8]/40 blur-2xl" />
 
-          <p className="mt-7 max-w-xl text-lg leading-relaxed text-[#617066]">
-            PawPort transforms scattered conversations between pet parents and boarding facilities into a structured
-            Care Passport—so every caregiver knows exactly what makes each pet feel safe, comfortable, and at home.
+            <div className="relative overflow-hidden rounded-[2rem] border border-[#e7ddcf] bg-[#fffdfb] shadow-xl">
+              <div className="bg-[#17352d] px-8 py-6 text-[#f7f1e9]">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold uppercase tracking-[0.2em] text-[#dfeae7]">PET HANDBOOK</span>
+                  <span className="rounded-full bg-[#d8a16a] px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#17352d]">
+                    Live care notes
+                  </span>
+                </div>
+                <div className="mt-6">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-[#cfe0d8]">Profile status</p>
+                  <p className="mt-2 text-3xl font-bold tracking-tight">No default pet</p>
+                  <p className="mt-2 text-sm text-[#dfeae7]">Built from the conversation as it happens.</p>
+                </div>
+              </div>
+              <div className="space-y-4 p-6">
+                <div className="rounded-2xl bg-[#f3eee8] p-4">
+                  <p className="text-xs uppercase tracking-[0.16em] text-[#617066]">Identity</p>
+                  <p className="mt-1 font-medium text-[#17352d]">Name, species, breed, age, sex remain unknown until shared.</p>
+                </div>
+                <div className="rounded-2xl bg-[#f3eee8] p-4">
+                  <p className="text-xs uppercase tracking-[0.16em] text-[#617066]">Feeding</p>
+                  <p className="mt-1 font-medium text-[#17352d]">Captured directly from the owner’s routine and preferences.</p>
+                </div>
+                <div className="rounded-2xl border border-[#e6c3b0] bg-[#fff1ea] p-4">
+                  <p className="text-xs uppercase tracking-[0.16em] text-[#cc6f47]">Care detail</p>
+                  <p className="mt-1 font-medium text-[#17352d]">Only confirmed information appears in the final handbook.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-24">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-[#17352d] md:text-4xl">
+            A pet handover has two sides.
+          </h2>
+          <p className="mt-4 text-[#617066]">
+            PET HANDBOOK helps the owner and caregiver stay aligned with one living, accurate care record.
           </p>
+        </div>
 
-          <div className="mt-9 flex flex-wrap gap-4">
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
+          <div className="rounded-3xl border border-[#e7ddcf] bg-[#fffdfb] p-8 shadow-sm">
+            <span className="text-sm font-semibold uppercase tracking-[0.16em] text-[#cc6f47]">Pet parent</span>
+            <p className="mt-4 text-2xl font-semibold leading-snug text-[#17352d]">
+              “I want every important care detail to be remembered accurately.”
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-[#17352d] bg-[#17352d] p-8 text-[#f7f1e9] shadow-sm">
+            <span className="text-sm font-semibold uppercase tracking-[0.16em] text-[#d8a16a]">Caregiver</span>
+            <p className="mt-4 text-2xl font-semibold leading-snug">
+              “I need the pet’s real preferences, routines, and safety notes in one place.”
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="how-it-works" className="scroll-mt-20 bg-[#f3eee8]/70 py-16 md:py-24">
+        <div className="mx-auto max-w-6xl px-6 md:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="text-sm font-semibold uppercase tracking-[0.16em] text-[#cc6f47]">How it works</span>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-[#17352d] md:text-4xl">
+              From a simple conversation to a complete care handbook.
+            </h2>
+          </div>
+
+          <div className="mt-14 grid gap-8 md:grid-cols-3">
+            {[
+              {
+                n: "01",
+                title: "Tell us about the pet",
+                text: "Start with a natural message about their routines, preferences, or care needs.",
+              },
+              {
+                n: "02",
+                title: "The profile updates live",
+                text: "Confirmed details are stored as the conversation continues, without inventing missing facts.",
+              },
+              {
+                n: "03",
+                title: "Generate the handbook",
+                text: "Get one clear, printable care handbook built from actual owner-provided information.",
+              },
+            ].map((step) => (
+              <div key={step.n} className="rounded-3xl border border-[#e7ddcf] bg-[#fffdfb] p-8 shadow-sm">
+                <span className="font-display text-5xl font-bold text-[#d8a16a]">{step.n}</span>
+                <h3 className="mt-5 text-xl font-bold text-[#17352d]">{step.title}</h3>
+                <p className="mt-3 leading-relaxed text-[#617066]">{step.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-24">
+        <div className="relative overflow-hidden rounded-[2.5rem] bg-[#cc6f47] px-8 py-16 text-center text-[#fffaf5] md:px-16">
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#d8a16a]/25 blur-3xl" />
+          <div className="relative">
+            <h2 className="mx-auto max-w-2xl text-3xl font-bold md:text-5xl">Their care, in one place.</h2>
+            <p className="mx-auto mt-5 max-w-md text-lg text-[#fffaf5]/90">
+              Start with a conversation, build the pet profile naturally, and create a single, trusted handbook.
+            </p>
             <Link
               href="/handover"
-              className="rounded-full bg-[#24352B] px-7 py-4 font-semibold text-white shadow-lg transition hover:-translate-y-1 hover:bg-[#3B5445]"
+              className="mt-9 inline-flex items-center gap-2 rounded-full bg-[#fffdfb] px-8 py-4 font-semibold text-[#17352d] shadow-lg transition-transform hover:scale-105"
             >
-              Start Pet Handover 🐾
+              Start care conversation
+              <span>→</span>
             </Link>
-
-            <a
-              href="#how-it-works"
-              className="rounded-full border border-[#CFCBC0] bg-white px-7 py-4 font-semibold transition hover:bg-[#EFEDE5]"
-            >
-              See how it works
-            </a>
-          </div>
-
-          <div className="mt-12 flex gap-8 text-sm text-[#617066]">
-            <div>
-              <p className="text-2xl font-bold text-[#24352B]">3 min</p>
-              <p>Conversational handover</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-[#24352B]">1 profile</p>
-              <p>Structured Care Passport</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-[#24352B]">0</p>
-              <p>Critical details missed</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Hero Card */}
-        <div className="relative">
-          <div className="rounded-[2rem] bg-[#24352B] p-6 text-white shadow-2xl md:p-8">
-            <div className="mb-8 flex items-center justify-between">
-              <div>
-                <p className="text-sm text-[#B8C4BC]">CARE PASSPORT</p>
-                <h2 className="text-3xl font-bold">Bruno 🐶</h2>
-              </div>
-              <div className="rounded-2xl bg-[#E9A96A] px-4 py-2 text-sm font-semibold text-[#24352B]">Active Stay</div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="rounded-2xl bg-white/10 p-4">
-                <p className="text-xs uppercase tracking-wider text-[#B8C4BC]">🍽 Feeding</p>
-                <p className="mt-1 font-medium">8 AM & 7 PM · Kibble + gravy</p>
-              </div>
-
-              <div className="rounded-2xl bg-white/10 p-4">
-                <p className="text-xs uppercase tracking-wider text-[#B8C4BC]">🐕 Social behaviour</p>
-                <p className="mt-1 font-medium">Slow introduction to unfamiliar dogs</p>
-              </div>
-
-              <div className="rounded-2xl border border-[#E9A96A]/40 bg-[#E9A96A]/10 p-4">
-                <p className="text-xs uppercase tracking-wider text-[#E9A96A]">⚠ Attention needed</p>
-                <p className="mt-1 font-medium">Anxiety during thunderstorms</p>
-              </div>
-            </div>
-
-            <div className="mt-6 flex items-center gap-3 border-t border-white/10 pt-5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#C9784A]">🐾</div>
-              <p className="text-sm text-[#B8C4BC]">Every caregiver starts informed.</p>
-            </div>
-          </div>
-
-          <div className="absolute -bottom-5 -left-5 -z-0 h-28 w-28 rounded-full bg-[#E9A96A]/30 blur-2xl" />
-        </div>
-      </section>
-
-      {/* Problem */}
-      <section className="bg-white px-8 py-20 md:px-16">
-        <div className="mx-auto max-w-7xl">
-          <p className="mb-4 text-sm font-bold uppercase tracking-[0.2em] text-[#C9784A]">The problem</p>
-
-          <h2 className="max-w-3xl text-4xl font-bold tracking-tight md:text-5xl">
-            Important care instructions shouldn&apos;t get lost between shifts.
-          </h2>
-
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {[
-              [
-                "💬",
-                "Scattered information",
-                "Instructions are spread across calls, WhatsApp messages and verbal conversations.",
-              ],
-              [
-                "🔄",
-                "Staff handovers",
-                "Critical details can disappear when caregivers and shifts change.",
-              ],
-              [
-                "⚠️",
-                "One missed detail",
-                "A feeding restriction or behavioural trigger can completely change a pet's stay.",
-              ],
-            ].map(([icon, title, text]) => (
-              <div key={title} className="rounded-3xl border border-[#E7E5DD] p-7">
-                <div className="text-3xl">{icon}</div>
-                <h3 className="mt-5 text-xl font-bold">{title}</h3>
-                <p className="mt-3 leading-relaxed text-[#617066]">{text}</p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section id="how-it-works" className="px-8 py-20 md:px-16">
-        <div className="mx-auto max-w-7xl">
-          <div className="text-center">
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#C9784A]">How PawPort works</p>
-            <h2 className="mt-4 text-4xl font-bold md:text-5xl">From conversation to continuity of care.</h2>
-          </div>
-
-          <div className="mt-14 grid gap-8 md:grid-cols-4">
-            {[
-              ["01", "Tell us about your pet", "A natural conversation replaces long intake forms."],
-              ["02", "PawPort asks deeper", "Contextual follow-ups uncover details that matter."],
-              ["03", "Critical details surface", "Important instructions are automatically highlighted."],
-              ["04", "Care Passport created", "Every caregiver gets one structured pet profile."],
-            ].map(([number, title, text]) => (
-              <div key={number} className="relative">
-                <p className="text-5xl font-bold text-[#E9A96A]">{number}</p>
-                <h3 className="mt-5 text-xl font-bold">{title}</h3>
-                <p className="mt-3 leading-relaxed text-[#617066]">{text}</p>
-              </div>
-            ))}
-          </div>
+      <footer className="border-t border-[#e7ddcf]">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-[#617066] md:flex-row md:px-8">
+          <PawLogo />
+          <p>Their care, in one place.</p>
         </div>
-      </section>
-
-      {/* CTA */}
-      <section className="px-8 pb-20 md:px-16">
-        <div className="mx-auto max-w-6xl rounded-[2rem] bg-[#C9784A] px-8 py-16 text-center text-white md:px-16">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-white/70">PawPort Care System</p>
-          <h2 className="mx-auto mt-4 max-w-3xl text-4xl font-bold md:text-6xl">
-            The handover shouldn&apos;t depend on memory.
-          </h2>
-          <p className="mx-auto mt-6 max-w-xl text-lg text-white/85">
-            Create a complete Care Passport before your pet&apos;s next stay.
-          </p>
-
-          <Link
-            href="/handover"
-            className="mt-9 inline-block rounded-full bg-white px-8 py-4 font-semibold text-[#24352B] transition hover:scale-105"
-          >
-            Start Pet Handover →
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-[#E7E5DD] px-8 py-8 text-center text-sm text-[#617066]">
-        🐾 PawPort — Every pet comes with their own instructions.
       </footer>
-    </main>
-  )
+    </div>
+  );
 }

@@ -197,8 +197,8 @@ export default function PassportPage() {
                 P
               </div>
               <div>
-                <p className="text-lg font-semibold tracking-tight">PawPort</p>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#61776d]">Care Passport</p>
+                <p className="text-lg font-semibold tracking-tight">PET HANDBOOK</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#61776d]">Care Handbook</p>
               </div>
             </div>
 
@@ -223,8 +223,8 @@ export default function PassportPage() {
         <section className="rounded-[30px] border border-[#ead8c8] bg-[#fffdfb] p-5 shadow-[0_18px_40px_rgba(23,53,45,0.06)] sm:p-7 md:p-8">
           <div className="mb-6 flex flex-col gap-3 border-b border-[#ead8c8] pb-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#cc6f47]">PAWPORT</p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">CARE PASSPORT</h1>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#cc6f47]">PET HANDBOOK</p>
+              <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">CARE HANDBOOK</h1>
             </div>
             <div className="text-sm text-[#5d7069]">
               <p>Generated: {generatedAt}</p>

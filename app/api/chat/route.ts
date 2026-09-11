@@ -1,14 +1,17 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
+import { getGbifTaxonomyContext, shouldCheckSpeciesContext } from "@/lib/gbif";
+import { getAnimalContext } from "@/lib/knowledge";
+import { buildPetProfileFromConversation, toLegacyProfileUpdate } from "@/lib/pet-profile";
 
 const apiKey = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = "gemini-3.5-flash-lite";
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 const SYSTEM_PROMPT = `
-You are PawPort, an intelligent PET HANDOVER INTERVIEWER.
+You are PET HANDBOOK, an intelligent PET CARE INTERVIEWER.
 
-Your purpose is not simply to record random details. Your job is to systematically collect the information a boarding caregiver needs through a natural, helpful conversation, then turn that information into a structured Care Passport.
+Your purpose is not simply to record random details. Your job is to systematically collect the information a caregiver needs through a natural, helpful conversation, then turn that information into a structured care handbook.
 
 You should behave like a thoughtful boarding intake specialist.
 
@@ -39,7 +42,7 @@ SEQUENCE:
 - Foods to avoid
 - Special feeding instructions
 - Ask "What does your pet usually eat?" rather than "What should I feed your pet?"
-- PawPort is documenting the owner’s existing routine, not giving veterinary or dietary advice.
+- PET HANDBOOK is documenting the owner’s existing routine, not giving veterinary or dietary advice.
 
 3. DAILY ROUTINE
 - Wake-up time
@@ -79,7 +82,7 @@ CONVERSATION LOGIC:
 - Start with identity.
 - Then move naturally through feeding, routine, behaviour, comfort, and care alerts.
 - Ask 2–4 related questions at a time rather than one question per API request.
-- Example: "Let's get Bruno's feeding routine sorted: what does he normally eat, how much does he have per meal, what time does he eat, and does he get treats or any foods to avoid?"
+- Example: "Let's get the pet's feeding routine sorted: what does the pet normally eat, how much does it have per meal, what time does it eat, and does it get treats or any foods to avoid?"
 - After each user response:
   1. Extract only and all information explicitly provided.
   2. Update profileUpdate.
@@ -95,17 +98,17 @@ CONVERSATION LOGIC:
 - Continue until the major handover categories have been reasonably covered.
 
 GOOD EXAMPLES OF EFFICIENT INTERVIEWING:
-USER: "My dog's name is Bruno. He's a 4-year-old Labrador."
-PAWPORT: "Great — I've got Bruno's basics. Let's get his feeding routine sorted: what does Bruno usually eat, how much does he have at each meal, when does he eat, and does he get treats or any foods to avoid?"
+USER: "My dog’s name is Max. He is a 4-year-old Labrador."
+PET HANDBOOK: "Great — I’ve got the basics. Let’s get the feeding routine sorted: what does the pet usually eat, how much does it have at each meal, when does it eat, and does it get treats or any foods to avoid?"
 
 USER: "He eats Royal Canin dry food twice a day at 8 AM and 7 PM. Two cups each meal and a few training treats."
-PAWPORT: "Perfect. For his daily routine, how often does he walk, how long are the walks, and what is his usual sleep time?"
+PET HANDBOOK: "Perfect. For the daily routine, how often does it walk, how long are the walks, and what is its usual sleep time?"
 
-USER: "Two 30-minute walks a day and he sleeps around 10:30 PM."
-PAWPORT: "Thanks. Are there any behaviour quirks, comfort items, or care alerts we should know about?"
+USER: "Two 30-minute walks a day and it sleeps around 10:30 PM."
+PET HANDBOOK: "Thanks. Are there any behaviour quirks, comfort items, or care alerts we should know about?"
 
 SAFETY / SCOPE RULES:
-- PawPort is a handover documentation assistant, not a veterinarian.
+- PET HANDBOOK is a handover documentation assistant, not a veterinarian.
 - Never diagnose medical conditions.
 - Never tell the owner what they should feed, what medication they should use, or whether behaviour is normal or abnormal.
 - Do not prescribe treatment or medical advice.
@@ -125,6 +128,21 @@ DATA ACCURACY RULES:
 - Do not infer gender from the pet's name, pronouns, breed, or context.
 - If a detail is not applicable, record that appropriately.
 - If the owner does not know an answer, leave it unknown rather than guessing.
+
+INDIVIDUAL-FIRST RULE:
+Never assume an individual pet behaves according to its species or breed. General animal knowledge may be used to ask better questions or provide general context, but individual pet information supplied by the owner takes priority. If an individual preference or requirement is unknown, ask rather than invent.
+
+GENERAL KNOWLEDGE IS NOT INDIVIDUAL KNOWLEDGE.
+Species and breed information describes tendencies or general care considerations. It does not establish what this individual pet likes, dislikes, needs, or normally does.
+Never infer an individual pet's preference from its breed.
+For example, do not infer that a Labrador likes hand-feeding merely because Labradors may be food-motivated.
+If the owner says their pet likes hand-feeding, record that as an individual pet fact.
+If the owner says their pet dislikes hand-feeding, record that instead.
+If the information is unknown, ask the owner rather than guessing.
+OWNER-PROVIDED INFORMATION ABOUT THE INDIVIDUAL PET TAKES PRIORITY OVER GENERAL SPECIES OR BREED INFORMATION.
+
+INTERNAL TAXONOMIC CONTEXT RULE:
+Taxonomic information is general context only. Never treat taxonomy or species-level information as evidence of this individual pet's preferences, routines, personality, behaviour, or medical condition.
 
 YOU MUST RETURN ONLY VALID JSON.
 No markdown. No extra explanation. No commentary outside the JSON object.
@@ -235,7 +253,7 @@ function getGeminiErrorDetails(error: unknown) {
 export async function GET() {
   return NextResponse.json({
     ok: true,
-    message: "PawPort Chat API is ready.",
+    message: "PET HANDBOOK Chat API is ready.",
   });
 }
 
@@ -263,14 +281,75 @@ export async function POST(request: Request) {
 
     const conversation = messages
       .map((msg: { role: string; content: string }) => {
-        const speaker = msg.role === "user" ? "PET PARENT" : "PAWPORT";
+        const speaker = msg.role === "user" ? "PET PARENT" : "PET HANDBOOK";
         return `${speaker}: ${msg.content}`;
       })
       .join("\n");
 
+    const latestUserMessage =
+      [...messages]
+        .reverse()
+        .find((msg: { role?: string; content?: string }) => msg?.role === "user" && typeof msg?.content === "string" && msg.content.trim())
+        ?.content?.trim() ?? null;
+
+    const ownerPetProfile = buildPetProfileFromConversation(messages);
+    const legacyProfileUpdate = toLegacyProfileUpdate(ownerPetProfile);
+
+    const shouldQueryKnowledge = Boolean(latestUserMessage && shouldCheckSpeciesContext(latestUserMessage));
+    const animalKnowledge = shouldQueryKnowledge
+      ? await getAnimalContext({
+          userMessage: latestUserMessage,
+          conversation,
+        })
+      : null;
+
+    const knowledgeContextBlock = animalKnowledge && animalKnowledge.summary
+      ? `
+INTERNAL GENERAL KNOWLEDGE CONTEXT (GENERAL BACKGROUND ONLY):
+${animalKnowledge.summary}
+
+This general knowledge is not individual knowledge. It may help PET HANDBOOK ask better questions or provide broad context, but it must not override the owner's individual pet facts or create assumptions about this specific pet.
+`
+      : "";
+
+    const ownerProvidedFactsBlock = `
+OWNER-PROVIDED PET MEMORY (CURRENT CONVERSATION ONLY):
+${JSON.stringify(ownerPetProfile, null, 2)}
+
+Rules:
+- Only facts explicitly provided by the owner count as individual pet memory.
+- Unknown values must remain null or empty.
+- Species or breed tendencies do not establish this pet's actual preferences.
+- Later explicit owner statements update earlier facts for the same field.
+- If there is a contradiction, keep the latest explicit owner statement and do not invent a resolution.
+`;
+
+    const safetyGuidanceBlock = animalKnowledge?.safetyNotes && animalKnowledge.safetyNotes.length > 0
+      ? `
+SAFETY GUIDANCE:
+${animalKnowledge.safetyNotes.join(" ")}
+`
+      : "";
+
+    console.log("[PET HANDBOOK debug knowledge]", {
+      latestUserMessage,
+      shouldQueryKnowledge,
+      animalKnowledge,
+      knowledgeContextBlock,
+      ownerProvidedFactsBlock,
+      safetyGuidanceBlock,
+      ownerPetProfile,
+    });
+
     const response = await ai.models.generateContent({
       model: GEMINI_MODEL,
       contents: `${SYSTEM_PROMPT}
+
+${ownerProvidedFactsBlock}
+
+${knowledgeContextBlock}
+
+${safetyGuidanceBlock}
 
 CONVERSATION SO FAR:
 ${conversation}`,
@@ -286,8 +365,26 @@ ${conversation}`,
     }
 
     const data = JSON.parse(text);
+    console.log("[PET HANDBOOK debug gemini response]", {
+      text,
+      data,
+    });
 
-    return NextResponse.json(data);
+    const profileMemory = {
+      ownerProvidedFacts: ownerPetProfile,
+      generalKnowledge: {
+        summary: animalKnowledge?.summary ?? null,
+        sources: animalKnowledge?.sources ?? [],
+        safetyNotes: animalKnowledge?.safetyNotes ?? [],
+      },
+      safetyGuidance: animalKnowledge?.safetyNotes ?? [],
+    };
+
+    return NextResponse.json({
+      ...data,
+      profileMemory,
+      profileUpdate: legacyProfileUpdate,
+    });
   } catch (error) {
     const errorDetails = getGeminiErrorDetails(error);
     const status =
@@ -295,7 +392,7 @@ ${conversation}`,
         ? 500
         : Number(errorDetails.status);
 
-    console.error("[PawPort Gemini API request failed]", {
+    console.error("[PET HANDBOOK Gemini API request failed]", {
       httpStatus: errorDetails.status ?? "n/a",
       geminiErrorCode: errorDetails.code ?? "n/a",
       geminiErrorMessage: errorDetails.message,
